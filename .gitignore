@@ -5,3 +5,5 @@ cmake-build-*/
 *.exe
 *.o
 *.obj
+
+water_sort_solver

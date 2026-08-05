@@ -6,20 +6,21 @@
 #include <unordered_map>
 #include <utility>
 #include <vector>
+using namespace std;
 
 struct Move {
     int source = -1;
     int destination = -1;
 };
 
-using Tube = std::vector<int>;      // Bottom to top. Empty slots are omitted internally.
-using State = std::vector<Tube>;
+using Tube = vector<int>;      // Bottom to top. Empty slots are omitted internally.
+using State = vector<Tube>;
 
 struct SolveResult {
     bool solved = false;
-    std::vector<Move> moves;
+    vector<Move> moves;
     State finalState;
-    std::size_t exploredStates = 0;
+    size_t exploredStates = 0;
 };
 
 class WaterSortSolver {
@@ -28,18 +29,18 @@ public:
 
     [[nodiscard]] SolveResult solve() const;
     [[nodiscard]] bool isGoal(const State& state) const;
-    [[nodiscard]] std::vector<Move> legalMoves(const State& state) const;
+    [[nodiscard]] vector<Move> legalMoves(const State& state) const;
     [[nodiscard]] State applyMove(const State& state, const Move& move) const;
 
     [[nodiscard]] int capacity() const noexcept { return capacity_; }
     [[nodiscard]] const State& initialState() const noexcept { return initialState_; }
 
-    static std::string encode(const State& state);
-    static std::string formatTube(const Tube& tube, int capacity);
+    static string encode(const State& state);
+    static string formatTube(const Tube& tube, int capacity);
 
 private:
     struct ParentInfo {
-        std::string parentKey;
+        string parentKey;
         Move move;
         bool hasParent = false;
     };
@@ -47,7 +48,7 @@ private:
     int capacity_;
     State initialState_;
 
-    [[nodiscard]] std::vector<Move> reconstructPath(
-        const std::string& goalKey,
-        const std::unordered_map<std::string, ParentInfo>& parents) const;
+    [[nodiscard]] vector<Move> reconstructPath(
+        const string& goalKey,
+        const unordered_map<string, ParentInfo>& parents) const;
 };
