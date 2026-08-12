@@ -1,54 +1,38 @@
 #pragma once
-
 #include <cstddef>
-#include <optional>
 #include <string>
-#include <unordered_map>
 #include <utility>
 #include <vector>
-using namespace std;
 
 struct Move {
-    int source = -1;
-    int destination = -1;
+    int from{};
+    int to{};
+    int amount{};
+    int color{};
 };
 
-using Tube = vector<int>;      // Bottom to top. Empty slots are omitted internally.
-using State = vector<Tube>;
+using Tube = std::vector<int>; // bottom -> top, no zeros stored
+using State = std::vector<Tube>;
 
 struct SolveResult {
-    bool solved = false;
-    vector<Move> moves;
+    bool solved{false};
+    std::vector<Move> moves;
     State finalState;
-    size_t exploredStates = 0;
+    std::size_t visitedStates{0};
+    std::string message;
 };
 
 class WaterSortSolver {
 public:
-    WaterSortSolver(int capacity, State initialState);
+    WaterSortSolver(int capacity, State initial);
+    SolveResult solveMinimumMoves();
 
-    [[nodiscard]] SolveResult solve() const;
-    [[nodiscard]] bool isGoal(const State& state) const;
-    [[nodiscard]] vector<Move> legalMoves(const State& state) const;
-    [[nodiscard]] State applyMove(const State& state, const Move& move) const;
-
-    [[nodiscard]] int capacity() const noexcept { return capacity_; }
-    [[nodiscard]] const State& initialState() const noexcept { return initialState_; }
-
-    static string encode(const State& state);
-    static string formatTube(const Tube& tube, int capacity);
+    static bool isSolved(const State& state, int capacity);
+    static bool canPour(const State& state, int capacity, int from, int to);
+    static Move makePour(State& state, int capacity, int from, int to);
+    static std::string encode(const State& state);
 
 private:
-    struct ParentInfo {
-        string parentKey;
-        Move move;
-        bool hasParent = false;
-    };
-
     int capacity_;
-    State initialState_;
-
-    [[nodiscard]] vector<Move> reconstructPath(
-        const string& goalKey,
-        const unordered_map<string, ParentInfo>& parents) const;
+    State initial_;
 };
