@@ -1,76 +1,53 @@
-# Colored Water Sort Solver
+# Chromaflow - Colored Water Sort Solver
 
-A C++17 console program that solves the Colored Water Sort puzzle using **breadth-first search (BFS)**. Because BFS explores states by increasing path length, the first solution found has the minimum number of moves.
+A C++17 project that solves the Colored Water Sort puzzle with a **minimum number of moves** using breadth-first search. It includes both the required console application and an optional polished SFML desktop interface.
 
-## Move rule used
+## GUI highlights
 
-One move transfers exactly one top layer from a source tube to a destination tube. The destination must be empty or have the same color on top, and it must not be full. This interpretation matches the supplied examples.
+- Animated glass tubes and vivid liquid layers
+- Three ready-to-use puzzle presets
+- Manual tube-to-tube editing by clicking
+- Optimal BFS solving with move count and explored-state statistics
+- Previous, next, autoplay and pause controls
+- Keyboard shortcuts: `S` solve, `R` reset, arrow keys step, `Space` play/pause
+- Responsive tube spacing for different puzzle sizes
 
 ## Build
 
-### CMake (recommended)
+### Console only (no external library)
 
 ```bash
-cmake -S . -B build
+cmake -S . -B build -DBUILD_GUI=OFF
 cmake --build build
+./build/water_sort_console < samples/example_a.txt
 ```
 
-Run:
+### GUI
+
+The GUI uses SFML 2.6. CMake first looks for an installed SFML package; if unavailable, it downloads SFML automatically.
 
 ```bash
-./build/water_sort < sample_input_A.txt
+cmake -S . -B build -DBUILD_GUI=ON
+cmake --build build --config Release
+./build/water_sort_gui
 ```
 
-On Windows, the executable may be under `build/Debug/water_sort.exe` or `build/Release/water_sort.exe`.
-
-### Direct g++ command
-
-```bash
-g++ -std=c++17 -Wall -Wextra -Wpedantic -Iinclude src/main.cpp src/WaterSortSolver.cpp -o water_sort
-./water_sort < sample_input_A.txt
-```
+On Windows with Visual Studio, run `build/Release/water_sort_gui.exe` after building.
 
 ## Input format
 
-1. Number of tubes `N`
-2. Capacity `C`
-3. `N` lines, each containing exactly `C` integers from bottom to top
-4. `0` represents an empty slot and zeros must be at the end of a tube line
+First line: number of tubes `N`. Second line: capacity `C`. Then `N` lines, each listing colors from bottom to top. Use `0` for empty positions; zeros must appear at the end.
 
-Example:
+## Algorithm
 
-```text
-4
-2
-1 2
-2 1
-0 0
-0 0
-```
-
-## Tests
-
-```bash
-cmake -S . -B build
-cmake --build build
-ctest --test-dir build --output-on-failure
-```
+Each arrangement is a graph state. Every legal pour is an edge with equal cost. Breadth-first search explores this graph level by level, so the first solved state reached has the fewest moves. A hash set stores encoded states and prevents repeated exploration.
 
 ## Project structure
 
-```text
-ColoredWaterSortSolver/
-├── include/WaterSortSolver.hpp
-├── src/WaterSortSolver.cpp
-├── src/main.cpp
-├── tests/test_solver.cpp
-└── README.md
-```
-
-## Complexity
-
-Let `S` be the number of reachable puzzle states and `N` the number of tubes.
-
-- Time: `O(S * N^2)` in the worst case, because each state checks all source-destination pairs.
-- Memory: `O(S)` states for the queue and parent map, with each encoded state containing up to `N * C` layers.
-
+- `include/WaterSortSolver.hpp` - reusable solver API
+- `src/WaterSortSolver.cpp` - BFS and pouring rules
+- `src/main.cpp` - required console interface
+- `src/gui.cpp` - SFML graphical interface
+- `tests/test_solver.cpp` - automated correctness tests
+- `samples/` - required sample inputs
+- `docs/` - project report files
