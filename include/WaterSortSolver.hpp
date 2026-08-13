@@ -4,6 +4,7 @@
 #include <utility>
 #include <vector>
 
+using namespace std; 
 struct Move {
     int from{};
     int to{};
@@ -11,15 +12,15 @@ struct Move {
     int color{};
 };
 
-using Tube = std::vector<int>; // bottom -> top, no zeros stored
-using State = std::vector<Tube>;
+using Tube = vector<int>; // bottom -> top, no zeros stored
+using State = vector<Tube>;
 
 struct SolveResult {
     bool solved{false};
-    std::vector<Move> moves;
+    vector<Move> moves;
     State finalState;
-    std::size_t visitedStates{0};
-    std::string message;
+    size_t visitedStates{0};
+    string message;
 };
 
 class WaterSortSolver {
@@ -30,7 +31,7 @@ public:
     static bool isSolved(const State& state, int capacity);
     static bool canPour(const State& state, int capacity, int from, int to);
     static Move makePour(State& state, int capacity, int from, int to);
-    static std::string encode(const State& state);
+    static string encode(const State& state);
 
 private:
     int capacity_;
