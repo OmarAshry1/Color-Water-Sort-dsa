@@ -6,12 +6,14 @@
 #include <unordered_map>
 #include <unordered_set>
 
+using namespace std;
+
 WaterSortSolver::WaterSortSolver(int capacity, State initial)
-    : capacity_(capacity), initial_(std::move(initial)) {
-    if (capacity_ <= 0) throw std::invalid_argument("Capacity must be positive");
+    : capacity_(capacity), initial_(move(initial)) {
+    if (capacity_ <= 0) throw invalid_argument("Capacity must be positive");
     for (const auto& tube : initial_) {
-        if (static_cast<int>(tube.size()) > capacity_) throw std::invalid_argument("Tube exceeds capacity");
-        for (int color : tube) if (color <= 0) throw std::invalid_argument("Stored colors must be positive");
+        if (static_cast<int>(tube.size()) > capacity_) throw invalid_argument("Tube exceeds capacity");
+        for (int color : tube) if (color <= 0) throw invalid_argument("Stored colors must be positive");
     }
 }
 
@@ -19,7 +21,7 @@ bool WaterSortSolver::isSolved(const State& state, int capacity) {
     for (const auto& tube : state) {
         if (tube.empty()) continue;
         if (static_cast<int>(tube.size()) != capacity) return false;
-        if (!std::all_of(tube.begin(), tube.end(), [&](int c){ return c == tube.front(); })) return false;
+        if (!all_of(tube.begin(), tube.end(), [&](int c){ return c == tube.front(); })) return false;
     }
     return true;
 }
@@ -39,7 +41,7 @@ Move WaterSortSolver::makePour(State& state, int capacity, int from, int to) {
     const int color = src.back();
     int sameTop = 0;
     for (auto it = src.rbegin(); it != src.rend() && *it == color; ++it) ++sameTop;
-    const int amount = std::min(sameTop, capacity - static_cast<int>(dst.size()));
+    const int amount = min(sameTop, capacity - static_cast<int>(dst.size()));
     for (int i = 0; i < amount; ++i) {
         dst.push_back(src.back());
         src.pop_back();
@@ -47,8 +49,8 @@ Move WaterSortSolver::makePour(State& state, int capacity, int from, int to) {
     return Move{from, to, amount, color};
 }
 
-std::string WaterSortSolver::encode(const State& state) {
-    std::ostringstream out;
+string WaterSortSolver::encode(const State& state) {
+    ostringstream out;
     for (const auto& tube : state) {
         out << '[';
         for (int c : tube) out << c << ',';
@@ -68,11 +70,11 @@ SolveResult WaterSortSolver::solveMinimumMoves() {
     }
 
     struct Node { State state; int parent; Move move; };
-    std::vector<Node> nodes;
+    vector<Node> nodes;
     nodes.push_back({initial_, -1, {}});
-    std::queue<int> frontier;
+    queue<int> frontier;
     frontier.push(0);
-    std::unordered_set<std::string> seen;
+    unordered_set<string> seen;
     seen.insert(encode(initial_));
 
     int goal = -1;
@@ -88,12 +90,12 @@ SolveResult WaterSortSolver::solveMinimumMoves() {
                 const auto& src = current[from];
                 const auto& dst = current[to];
                 const bool uniformFull = static_cast<int>(src.size()) == capacity_ &&
-                    std::all_of(src.begin(), src.end(), [&](int c){ return c == src.front(); });
+                    all_of(src.begin(), src.end(), [&](int c){ return c == src.front(); });
                 if (dst.empty() && uniformFull) continue;
 
                 State next = current;
                 Move move = makePour(next, capacity_, from, to);
-                const std::string key = encode(next);
+                const string key = encode(next);
                 if (!seen.insert(key).second) continue;
                 nodes.push_back({std::move(next), index, move});
                 const int child = static_cast<int>(nodes.size()) - 1;
@@ -116,7 +118,7 @@ SolveResult WaterSortSolver::solveMinimumMoves() {
     result.solved = true;
     result.finalState = nodes[goal].state;
     for (int cur = goal; nodes[cur].parent != -1; cur = nodes[cur].parent) result.moves.push_back(nodes[cur].move);
-    std::reverse(result.moves.begin(), result.moves.end());
+    reverse(result.moves.begin(), result.moves.end());
     result.message = "Minimum-move solution found.";
     return result;
 }
